@@ -155,26 +155,6 @@ mesmo contador), Acumulado e Δ são iguais — não há nada a subtrair.
 
 **Total: US$ 28,86** (soma da linha "Δ desta chamada" de cada bloco, exceto 06 e 10)
 
-**Rastreabilidade — print de origem de cada linha "Acumulado":**
-
-| Chamada | Arquivo em `EVIDENCIAS/` |
-|---|---|
-| 01 | `Chamada 1 Criar CLAUDE.md - Entrada6, Saída7, CustoUS$ 0,19.png` |
-| 02 | `Chamada 2 - Criar projeto Next.js - Entrada 32 - Saída 51 - Custo US$ 0,24.png` |
-| 03 | `Chamada 3 - Extrair PDF - Entrada 200 - 38 = 162 - Saída 4500 - 58 = 4442 - Custo 1,63 - 0,43 = US$ 1,20.png` |
-| 04 | `Chamada 4 - Rodar npm run dev - Entrada 10 - Saída 100 - Custo US$ 0,13.png` |
-| 05 | `Chamada 5 - Classificação + testes (Vitest) - Entrada 16 - Saída 103.200 - Custo US$ 2,08.png` |
-| 06 | `Chamada 6 - Integrar classificação na tela - Entrada 332 - Saída 108.200 - Custo total acumulado nesse ponto US$ 3,77.png` |
-| 07A | `Chamada 7.1.1 Entrada 4 Saída 4 Leitura de cache 70,2k Gravação de cache 52,4k Custo US$ 0,23.png` |
-| 07B | `Chamada 7.2.2 Entrada 4 Saída 4 Leitura de cache 70,2k Gravação de cache 53,3k Custo US$ 0,21.png` |
-| 08 | `Chamada 8entrada60saida94Custo 0,61 .png` (acumulado, apesar do nome sugerir o Δ) |
-| 09 | `Chamada 8.1.png` |
-| 11 | `Chamada 8.2.png` |
-| 12 | `CHAMADA 9.png` (nome enganoso — o conteúdo é da regra 50/30/20, não da chamada 09 da tabela) |
-| 13 | `Chamada 10.png` (nome enganoso — o conteúdo é da tela de sugestões, não da chamada 10 da tabela) |
-| 14–16 (fim) | `Chamda 12.png` e `Chamada final.png` (mesmo estado, dois prints) |
-| 14–16 (meio, não usado na tabela) | `Chamada 12.png` — mostra o estado no meio dessa sessão (Entrada 508, Saída 1.400, Custo US$ 8,54), útil pra conferência mas não usado diretamente na tabela |
-
 ## 6. Prints
 
 Todos os prints das chamadas e do painel de `/usage` estão na pasta
