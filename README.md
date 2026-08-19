@@ -96,37 +96,60 @@ Modelo: **Claude Sonnet 5**, via Claude Code. Preços de referência: input
 US$ 2 / 1M tokens, output US$ 10 / 1M tokens (tabela oficial em
 [platform.claude.com/docs/en/about-claude/pricing](https://platform.claude.com/docs/en/about-claude/pricing)).
 
-| # | Chamada | Entrada | Saída | Custo (US$) |
-|---|---|---|---|---|
-| 01 | Criar CLAUDE.md (system prompt) | 6 | 7 | 0,19 |
-| 02 | Inicializar projeto Next.js + TypeScript | 32 | 51 | 0,24 |
-| 03 | Implementar extração de texto do PDF | 162 | 4.442 | 1,20 |
-| 04 | Rodar servidor local (npm run dev) | 10 | 100 | 0,13 |
-| 05 | Classificação few-shot (200 exemplos) + testes Vitest | 16 | 103.200 | 2,08 |
-| 06 | Integrar classificação na tela | — | — | não confiável |
-| 07A | Curadoria de contexto — arquivo inteiro colado | 4 | 4 | 0,23 |
-| 07B | Curadoria de contexto — `@arquivo` referenciado | 4 | 4 | 0,21 |
-| 08 | Tela de upload + parser de valor (v1) | 60 | 194 | 0,61 |
-| 09 | Corrigir parser p/ formato real do extrato do BB | 90 | 179 | 1,58 |
-| 10 | Corrigir soma do total (só débitos) | — | — | não capturado |
-| 11 | Ajustar classificação (Pagto cartão → Custos Variáveis) | 224 | 577 | 2,00 |
-| 12 | Implementar regra 50/30/20 | 64 | 211 | 1,36 |
-| 13 | Implementar tela de sugestões | 46 | 165 | 1,21 |
-| 14–16 | Diagnóstico + correção do deploy no Vercel (lockfile, fetch, troca pdf-parse → pdf2json) | 746 | ~2.000 | 17,82 |
+O painel `/usage` do Claude Code mostra, além de Entrada/Saída, duas colunas
+adicionais — **Leitura de cache** e **Gravação de cache** (prompt caching) —
+que têm preço próprio, diferente do input/output "puro", e são o principal
+componente do custo em sessões longas (uma chamada com só 6 tokens de
+entrada pode custar US$ 0,19 por causa disso). A tabela abaixo inclui essas
+colunas para que o cálculo seja auditável de ponta a ponta; sem elas, a
+fórmula `custo = entrada×preço_in + saída×preço_out` do enunciado não
+reconcilia com a coluna "Custo" — não porque os números estejam errados, mas
+porque o cache não está incluído nessa fórmula simplificada.
+
+Cada linha foi conferida cruzando o print de **antes** e o print de
+**depois** de cada chamada no painel "Esta sessão" (que é cumulativo, não
+por chamada) e calculando a diferença — por isso os valores de Entrada,
+Saída e Custo batem exatamente entre linhas consecutivas da mesma sessão.
+
+| # | Chamada | Entrada | Saída | Leitura cache | Gravação cache | Custo (US$) |
+|---|---|---|---|---|---|---|
+| 01 | Criar CLAUDE.md (system prompt) | 6 | 7 | 129.300 | 48.600 | 0,19 |
+| 02 | Inicializar projeto Next.js + TypeScript | 32 | 51 | 970.700 | 8.900 | 0,24 |
+| 03 | Implementar extração de texto do PDF | 162 | 4.442 | 6.500.000 | 153.500 | 1,20 |
+| 04 | Rodar servidor local (npm run dev) | 10 | 100 | 500.000 | 1.100 | 0,13 |
+| 05 | Classificação few-shot (200 exemplos) + testes Vitest | 16 | 103.200 | 2.800.000 | 0 | 2,08 |
+| 06 | Integrar classificação na tela | — | — | — | — | não confiável |
+| 07A | Curadoria de contexto — arquivo inteiro colado | 4 | 4 | 70.200 | 52.400 | 0,23 |
+| 07B | Curadoria de contexto — `@arquivo` referenciado | 4 | 4 | 70.200 | 53.300 | 0,21 |
+| 08 | Tela de upload + parser de valor (v1) | 60 | 194 | 2.230.000 | 53.300 | 0,61 |
+| 09 | Corrigir parser p/ formato real do extrato do BB | 90 | 179 | 5.000.000 | 150.700 | 1,58 |
+| 10 | Corrigir soma do total (só débitos) | — | — | — | — | não capturado |
+| 11 | Ajustar classificação (Pagto cartão → Custos Variáveis) | 224 | 577 | 12.900.000 | 546.600 | 2,00 |
+| 12 | Implementar regra 50/30/20 | 64 | 211 | 5.900.000 | 28.100 | 1,36 |
+| 13 | Implementar tela de sugestões | 46 | 165 | 4.800.000 | 27.000 | 1,21 |
+| 14–16 | Diagnóstico + correção do deploy no Vercel (lockfile, fetch, troca pdf-parse → pdf2json) | 746 | ~2.000 | 79.600.000 | 1.200.000 | 17,82 |
 
 **Total: US$ 28,86**
 
-**Nota de honestidade:** a chamada 06 teve uma inconsistência no painel de
-custo do Claude Code (o total mostrou queda em vez de subida), então seu
-custo individual não é confiável e não está incluído separadamente. A
-chamada 10 não teve o `/usage` capturado no momento certo, então seu custo
-não está incluído. O bloco 14–16 (diagnóstico e correção do deploy no
-Vercel) aconteceu em uma sessão contínua e foi capturado como um custo
-agregado de US$ 17,82 — não é possível separar o custo exato de cada uma das
-três correções individualmente, mas o valor agregado é real. Por causa
-disso, o total de US$ 28,86 é uma estimativa levemente subestimada (falta o
-custo isolado da chamada 10), mas é o número mais preciso possível com os
-dados capturados.
+**Nota de honestidade:**
+
+- A chamada 06 teve uma inconsistência real no painel do Claude Code: o
+  custo acumulado da sessão **caiu** de US$ 3,84 (fim da chamada 05) para
+  US$ 3,77, o que não deveria ser possível num contador cumulativo. Não
+  sabemos a causa exata (possível recálculo interno da ferramenta), então o
+  custo individual dessa chamada não é confiável e não entra na soma.
+- A chamada 10 não teve o `/usage` capturado no momento certo, então seu
+  custo não está incluído — o total de US$ 28,86 é, por isso, uma
+  estimativa levemente subestimada.
+- O bloco 14–16 foi capturado como custo agregado de uma sessão contínua;
+  não temos o print do início exato dessa sessão, então não é possível
+  confirmar que US$ 17,82 é puramente o delta dessas três correções (pode
+  incluir alguns minutos de trabalho anterior não discriminado). É o número
+  mais preciso disponível com os dados capturados.
+- Todas as demais linhas (01–05, 07A, 07B, 08–09, 11–13) foram verificadas
+  cruzando os prints de "antes" e "depois" no painel — os valores de
+  Entrada, Saída, cache e Custo reconciliam exatamente por subtração entre
+  chamadas consecutivas da mesma sessão.
 
 ## 6. Prints
 
