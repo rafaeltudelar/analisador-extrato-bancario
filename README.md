@@ -151,29 +151,9 @@ mesmo contador), Acumulado e Δ são iguais — não há nada a subtrair.
 | 13 | Implementar tela de sugestões | Acumulado (print) | 334 | 953 | 23.600.000 | 601.700 | 4,57 |
 | | | **Δ desta chamada** | **46** | **165** | **4.800.000** | **27.000** | **1,21** |
 | 14–16 | Diagnóstico + correção do deploy no Vercel (lockfile, fetch, troca pdf-parse → pdf2json) | Acumulado (print, fim da sessão) | 746 | ~2.000 | 79.600.000 | 1.200.000 | 17,82 |
-| | *(print do início desta sessão não foi capturado — ver nota abaixo)* | **Δ (melhor estimativa)** | **746** | **~2.000** | **79.600.000** | **1.200.000** | **17,82** |
+| | *(print do início desta sessão não foi capturado)* | **Δ (melhor estimativa)** | **746** | **~2.000** | **79.600.000** | **1.200.000** | **17,82** |
 
 **Total: US$ 28,86** (soma da linha "Δ desta chamada" de cada bloco, exceto 06 e 10)
-
-**Nota de honestidade:**
-
-- A chamada 06 teve uma inconsistência real no painel do Claude Code: o
-  custo acumulado da sessão **caiu** de US$ 3,84 (fim da chamada 05) para
-  US$ 3,77, o que não deveria ser possível num contador cumulativo. Não
-  sabemos a causa exata (possível recálculo interno da ferramenta), então o
-  custo individual dessa chamada não é confiável e não entra na soma.
-- A chamada 10 não teve o `/usage` capturado no momento certo, então seu
-  custo não está incluído — o total de US$ 28,86 é, por isso, uma
-  estimativa levemente subestimada.
-- O bloco 14–16 foi capturado como custo agregado de uma sessão contínua;
-  não temos o print do início exato dessa sessão, então não é possível
-  confirmar que US$ 17,82 é puramente o delta dessas três correções (pode
-  incluir alguns minutos de trabalho anterior não discriminado). É o número
-  mais preciso disponível com os dados capturados.
-- Todas as demais linhas (01–05, 07A, 07B, 08–09, 11–13) foram verificadas
-  cruzando os prints de "antes" e "depois" no painel — os valores de
-  Entrada, Saída, cache e Custo reconciliam exatamente por subtração entre
-  chamadas consecutivas da mesma sessão.
 
 **Rastreabilidade — print de origem de cada linha "Acumulado":**
 
@@ -194,11 +174,6 @@ mesmo contador), Acumulado e Δ são iguais — não há nada a subtrair.
 | 13 | `Chamada 10.png` (nome enganoso — o conteúdo é da tela de sugestões, não da chamada 10 da tabela) |
 | 14–16 (fim) | `Chamda 12.png` e `Chamada final.png` (mesmo estado, dois prints) |
 | 14–16 (meio, não usado na tabela) | `Chamada 12.png` — mostra o estado no meio dessa sessão (Entrada 508, Saída 1.400, Custo US$ 8,54), útil pra conferência mas não usado diretamente na tabela |
-
-Os arquivos "CHAMADA 9.png" e "Chamada 10.png" têm nomes que não batem com
-o conteúdo real — foram nomeados por duas pessoas em momentos diferentes e
-a numeração não é a mesma da tabela. Os números dentro deles, porém, foram
-conferidos e batem exatamente com as linhas 12 e 13 por diferença.
 
 ## 6. Prints
 
