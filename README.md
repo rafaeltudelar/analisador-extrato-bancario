@@ -106,30 +106,54 @@ fórmula `custo = entrada×preço_in + saída×preço_out` do enunciado não
 reconcilia com a coluna "Custo" — não porque os números estejam errados, mas
 porque o cache não está incluído nessa fórmula simplificada.
 
-Cada linha foi conferida cruzando o print de **antes** e o print de
-**depois** de cada chamada no painel "Esta sessão" (que é cumulativo, não
-por chamada) e calculando a diferença — por isso os valores de Entrada,
-Saída e Custo batem exatamente entre linhas consecutivas da mesma sessão.
+O painel "Esta sessão" do Claude Code mostra o **acumulado desde o início da
+sessão**, não o gasto de uma chamada isolada. Por isso, cada linha abaixo
+aparece em duas linhas de tabela:
 
-| # | Chamada | Entrada | Saída | Leitura cache | Gravação cache | Custo (US$) |
-|---|---|---|---|---|---|---|
-| 01 | Criar CLAUDE.md (system prompt) | 6 | 7 | 129.300 | 48.600 | 0,19 |
-| 02 | Inicializar projeto Next.js + TypeScript | 32 | 51 | 970.700 | 8.900 | 0,24 |
-| 03 | Implementar extração de texto do PDF | 162 | 4.442 | 6.500.000 | 153.500 | 1,20 |
-| 04 | Rodar servidor local (npm run dev) | 10 | 100 | 500.000 | 1.100 | 0,13 |
-| 05 | Classificação few-shot (200 exemplos) + testes Vitest | 16 | 103.200 | 2.800.000 | 0 | 2,08 |
-| 06 | Integrar classificação na tela | — | — | — | — | não confiável |
-| 07A | Curadoria de contexto — arquivo inteiro colado | 4 | 4 | 70.200 | 52.400 | 0,23 |
-| 07B | Curadoria de contexto — `@arquivo` referenciado | 4 | 4 | 70.200 | 53.300 | 0,21 |
-| 08 | Tela de upload + parser de valor (v1) | 60 | 194 | 2.230.000 | 53.300 | 0,61 |
-| 09 | Corrigir parser p/ formato real do extrato do BB | 90 | 179 | 5.000.000 | 150.700 | 1,58 |
-| 10 | Corrigir soma do total (só débitos) | — | — | — | — | não capturado |
-| 11 | Ajustar classificação (Pagto cartão → Custos Variáveis) | 224 | 577 | 12.900.000 | 546.600 | 2,00 |
-| 12 | Implementar regra 50/30/20 | 64 | 211 | 5.900.000 | 28.100 | 1,36 |
-| 13 | Implementar tela de sugestões | 46 | 165 | 4.800.000 | 27.000 | 1,21 |
-| 14–16 | Diagnóstico + correção do deploy no Vercel (lockfile, fetch, troca pdf-parse → pdf2json) | 746 | ~2.000 | 79.600.000 | 1.200.000 | 17,82 |
+- **Acumulado (print)** — o número exatamente como aparece no screenshot,
+  direto da pasta [`EVIDENCIAS/`](EVIDENCIAS/), sem nenhuma conta feita.
+- **Δ desta chamada** (em negrito) — a diferença entre esse print e o
+  print imediatamente anterior *da mesma sessão*. É esse valor — não o
+  acumulado — que entra na coluna "Custo" e na soma total, porque o
+  acumulado já inclui o gasto de todas as chamadas anteriores.
 
-**Total: US$ 28,86**
+Quando uma chamada foi feita numa sessão nova (sem chamada anterior no
+mesmo contador), Acumulado e Δ são iguais — não há nada a subtrair.
+
+| # | Chamada | Estado | Entrada | Saída | Leitura cache | Gravação cache | Custo (US$) |
+|---|---|---|---|---|---|---|---|
+| 01 | Criar CLAUDE.md (system prompt) | Acumulado (print) | 6 | 7 | 129.300 | 48.600 | 0,19 |
+| | *(1ª chamada da sessão)* | **Δ desta chamada** | **6** | **7** | **129.300** | **48.600** | **0,19** |
+| 02 | Inicializar projeto Next.js + TypeScript | Acumulado (print) | 38 | 58 | 1.100.000 | 57.500 | 0,43 |
+| | | **Δ desta chamada** | **32** | **51** | **970.700** | **8.900** | **0,24** |
+| 03 | Implementar extração de texto do PDF | Acumulado (print) | 200 | 4.500 | 7.600.000 | 211.000 | 1,63 |
+| | | **Δ desta chamada** | **162** | **4.442** | **6.500.000** | **153.500** | **1,20** |
+| 04 | Rodar servidor local (npm run dev) | Acumulado (print) | 210 | 4.600 | 8.100.000 | 212.100 | 1,76 |
+| | | **Δ desta chamada** | **10** | **100** | **500.000** | **1.100** | **0,13** |
+| 05 | Classificação few-shot (200 exemplos) + testes Vitest | Acumulado (print) | 226 | 107.800 | 10.900.000 | 212.100 | 3,84 |
+| | | **Δ desta chamada** | **16** | **103.200** | **2.800.000** | **0** | **2,08** |
+| 06 | Integrar classificação na tela | Acumulado (print) | 332 | 108.200 | 20.600.000 | 754.200 | 3,77 |
+| | *(⚠️ acumulado caiu — anomalia do painel)* | **Δ desta chamada** | — | — | — | — | **não confiável** |
+| 07A | Curadoria de contexto — arquivo inteiro colado | Acumulado (print) | 4 | 4 | 70.200 | 52.400 | 0,23 |
+| | *(sessão nova, isolada)* | **Δ desta chamada** | **4** | **4** | **70.200** | **52.400** | **0,23** |
+| 07B | Curadoria de contexto — `@arquivo` referenciado | Acumulado (print) | 4 | 4 | 70.200 | 53.300 | 0,21 |
+| | *(sessão nova, isolada)* | **Δ desta chamada** | **4** | **4** | **70.200** | **53.300** | **0,21** |
+| 08 | Tela de upload + parser de valor (v1) | Acumulado (print) | 64 | 198 | 2.300.000 | 106.600 | 0,82 |
+| | *(continua a sessão de 07B)* | **Δ desta chamada** | **60** | **194** | **2.229.800** | **53.300** | **0,61** |
+| 09 | Corrigir parser p/ formato real do extrato do BB | Acumulado (print) | 154 | 377 | 7.300.000 | 257.300 | 2,40 |
+| | | **Δ desta chamada** | **90** | **179** | **5.000.000** | **150.700** | **1,58** |
+| 10 | Corrigir soma do total (só débitos) | Acumulado (print) | — | — | — | — | não capturado |
+| | | **Δ desta chamada** | — | — | — | — | **não capturado** |
+| 11 | Ajustar classificação (Pagto cartão → Custos Variáveis) | Acumulado (print) | 224 | 577 | 12.900.000 | 546.600 | 2,00 |
+| | *(sessão nova, isolada)* | **Δ desta chamada** | **224** | **577** | **12.900.000** | **546.600** | **2,00** |
+| 12 | Implementar regra 50/30/20 | Acumulado (print) | 288 | 788 | 18.800.000 | 574.700 | 3,36 |
+| | *(continua a sessão da chamada 11)* | **Δ desta chamada** | **64** | **211** | **5.900.000** | **28.100** | **1,36** |
+| 13 | Implementar tela de sugestões | Acumulado (print) | 334 | 953 | 23.600.000 | 601.700 | 4,57 |
+| | | **Δ desta chamada** | **46** | **165** | **4.800.000** | **27.000** | **1,21** |
+| 14–16 | Diagnóstico + correção do deploy no Vercel (lockfile, fetch, troca pdf-parse → pdf2json) | Acumulado (print, fim da sessão) | 746 | ~2.000 | 79.600.000 | 1.200.000 | 17,82 |
+| | *(print do início desta sessão não foi capturado — ver nota abaixo)* | **Δ (melhor estimativa)** | **746** | **~2.000** | **79.600.000** | **1.200.000** | **17,82** |
+
+**Total: US$ 28,86** (soma da linha "Δ desta chamada" de cada bloco, exceto 06 e 10)
 
 **Nota de honestidade:**
 
@@ -150,6 +174,31 @@ Saída e Custo batem exatamente entre linhas consecutivas da mesma sessão.
   cruzando os prints de "antes" e "depois" no painel — os valores de
   Entrada, Saída, cache e Custo reconciliam exatamente por subtração entre
   chamadas consecutivas da mesma sessão.
+
+**Rastreabilidade — print de origem de cada linha "Acumulado":**
+
+| Chamada | Arquivo em `EVIDENCIAS/` |
+|---|---|
+| 01 | `Chamada 1 Criar CLAUDE.md - Entrada6, Saída7, CustoUS$ 0,19.png` |
+| 02 | `Chamada 2 - Criar projeto Next.js - Entrada 32 - Saída 51 - Custo US$ 0,24.png` |
+| 03 | `Chamada 3 - Extrair PDF - Entrada 200 - 38 = 162 - Saída 4500 - 58 = 4442 - Custo 1,63 - 0,43 = US$ 1,20.png` |
+| 04 | `Chamada 4 - Rodar npm run dev - Entrada 10 - Saída 100 - Custo US$ 0,13.png` |
+| 05 | `Chamada 5 - Classificação + testes (Vitest) - Entrada 16 - Saída 103.200 - Custo US$ 2,08.png` |
+| 06 | `Chamada 6 - Integrar classificação na tela - Entrada 332 - Saída 108.200 - Custo total acumulado nesse ponto US$ 3,77.png` |
+| 07A | `Chamada 7.1.1 Entrada 4 Saída 4 Leitura de cache 70,2k Gravação de cache 52,4k Custo US$ 0,23.png` |
+| 07B | `Chamada 7.2.2 Entrada 4 Saída 4 Leitura de cache 70,2k Gravação de cache 53,3k Custo US$ 0,21.png` |
+| 08 | `Chamada 8entrada60saida94Custo 0,61 .png` (acumulado, apesar do nome sugerir o Δ) |
+| 09 | `Chamada 8.1.png` |
+| 11 | `Chamada 8.2.png` |
+| 12 | `CHAMADA 9.png` (nome enganoso — o conteúdo é da regra 50/30/20, não da chamada 09 da tabela) |
+| 13 | `Chamada 10.png` (nome enganoso — o conteúdo é da tela de sugestões, não da chamada 10 da tabela) |
+| 14–16 (fim) | `Chamda 12.png` e `Chamada final.png` (mesmo estado, dois prints) |
+| 14–16 (meio, não usado na tabela) | `Chamada 12.png` — mostra o estado no meio dessa sessão (Entrada 508, Saída 1.400, Custo US$ 8,54), útil pra conferência mas não usado diretamente na tabela |
+
+Os arquivos "CHAMADA 9.png" e "Chamada 10.png" têm nomes que não batem com
+o conteúdo real — foram nomeados por duas pessoas em momentos diferentes e
+a numeração não é a mesma da tabela. Os números dentro deles, porém, foram
+conferidos e batem exatamente com as linhas 12 e 13 por diferença.
 
 ## 6. Prints
 
