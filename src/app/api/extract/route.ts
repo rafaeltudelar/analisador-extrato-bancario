@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { extractTextFromPdf } from "@/lib/pdf";
 
+export const runtime = "nodejs";
+// Timeout padrão de função serverless no Vercel é 10s, que pode não bastar
+// para o cold start do PDF.js + parsing de PDFs maiores.
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
   const file = formData.get("file");

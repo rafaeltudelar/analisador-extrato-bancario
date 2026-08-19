@@ -120,14 +120,23 @@ export default function Home() {
         method: "POST",
         body: formData,
       });
-      const data = await response.json();
 
-      if (!response.ok) {
-        setError(data.error ?? "Erro ao processar o PDF.");
+      let data: { text?: string; error?: string };
+      try {
+        data = await response.json();
+      } catch {
+        setError(
+          `O servidor respondeu com status ${response.status} e não foi possível ler o resultado.`
+        );
         return;
       }
 
-      setText(data.text);
+      if (!response.ok) {
+        setError(data.error ?? `Erro ao processar o PDF (status ${response.status}).`);
+        return;
+      }
+
+      setText(data.text ?? "");
     } catch {
       setError("Falha de conexão ao enviar o arquivo.");
     } finally {
